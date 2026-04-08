@@ -1,0 +1,14 @@
+# Credentials — copy config.example.php to config.php and fill in your details
+config.php
+
+# SQLite database
+db/*.db
+db/*.db-shm
+db/*.db-wal
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
