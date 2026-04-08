@@ -83,7 +83,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
                     $playtime_hours     = ($data['playtime_hours'] ?? '') !== '' ? (float)$data['playtime_hours'] : null;
                     $completion_percent = max(0, min(100, (int)($data['completion_percent'] ?? 0)));
                     $status             = in_array($data['status'] ?? '', $valid_statuses) ? $data['status'] : 'backlog';
-                    $platform_played    = trim($data['platform_played'] ?? '') ?: null;
+                    $pp_raw          = trim($data['platform_played'] ?? '');
+                    $platform_played = null;
+                    if ($pp_raw !== '') {
+                        // Accept either JSON array or comma-separated string
+                        $decoded = json_decode($pp_raw, true);
+                        if (is_array($decoded)) {
+                            $platform_played = json_encode(array_values($decoded));
+                        } else {
+                            $parts = array_filter(array_map('trim', explode(',', $pp_raw)));
+                            $platform_played = !empty($parts) ? json_encode(array_values($parts)) : null;
+                        }
+                    }
                     $format             = trim($data['format'] ?? '') ?: null;
                     $notes              = trim($data['notes'] ?? '') ?: null;
 

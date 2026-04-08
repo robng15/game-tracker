@@ -25,7 +25,16 @@ $columns = [
 fputcsv($out, $columns);
 
 foreach ($games as $game) {
-    fputcsv($out, array_map(fn($col) => $game[$col] ?? '', $columns));
+    $row = array_map(fn($col) => $game[$col] ?? '', $columns);
+    // Decode platform_played JSON to comma-separated string for readability
+    $pp_idx = array_search('platform_played', $columns);
+    if ($pp_idx !== false && !empty($row[$pp_idx])) {
+        $decoded = json_decode($row[$pp_idx], true);
+        if (is_array($decoded)) {
+            $row[$pp_idx] = implode(', ', $decoded);
+        }
+    }
+    fputcsv($out, $row);
 }
 
 fclose($out);

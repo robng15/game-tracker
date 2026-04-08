@@ -23,8 +23,8 @@ if ($status_filter !== '') {
     $params[]     = $status_filter;
 }
 if ($platform_filter !== '') {
-    $conditions[] = 'platform_played = ?';
-    $params[]     = $platform_filter;
+    $conditions[] = 'platform_played LIKE ?';
+    $params[]     = '%"' . $platform_filter . '"%';
 }
 $where = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
 
@@ -178,7 +178,10 @@ require_once __DIR__ . '/includes/header.php';
                         <?= htmlspecialchars($statuses[$g['status']] ?? ucfirst($g['status'])) ?>
                     </span>
                 </td>
-                <td class="text-muted small"><?= htmlspecialchars($g['platform_played'] ?? '—') ?></td>
+                <td class="text-muted small"><?php
+                    $pp = !empty($g['platform_played']) ? json_decode($g['platform_played'], true) : [];
+                    echo $pp ? htmlspecialchars(implode(', ', $pp)) : '—';
+                ?></td>
                 <td class="text-muted small"><?= htmlspecialchars($g['format'] ?? '—') ?></td>
                 <td>
                     <?php if ($g['my_rating'] !== null): ?>

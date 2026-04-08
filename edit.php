@@ -29,7 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $playtime_hours     = $_POST['playtime_hours'] !== '' ? (float)$_POST['playtime_hours'] : null;
     $completion_percent = max(0, min(100, (int)($_POST['completion_percent'] ?? 0)));
     $status             = $_POST['status'] ?? 'backlog';
-    $platform_played    = trim($_POST['platform_played'] ?? '') ?: null;
+    $pp_raw          = $_POST['platform_played'] ?? [];
+    $platform_played = !empty($pp_raw) ? json_encode(array_values($pp_raw)) : null;
     $format             = trim($_POST['format'] ?? '') ?: null;
     $notes              = trim($_POST['notes'] ?? '') ?: null;
 
@@ -202,16 +203,37 @@ require_once __DIR__ . '/includes/header.php';
             </div>
 
             <div class="row g-3 mt-0">
-                <div class="col-md-6">
+                <div class="col-md-8">
                     <label class="form-label">Platform Played</label>
-                    <select name="platform_played" class="form-select">
-                        <option value="">— Select —</option>
+                    <?php
+                    // If POST (validation failure), use POST array; otherwise decode from DB
+                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                        $checked_platforms = $_POST['platform_played'] ?? [];
+                    } else {
+                        $checked_platforms = !empty($v['platform_played'])
+                            ? (json_decode($v['platform_played'], true) ?? [])
+                            : [];
+                    }
+                    ?>
+                    <div style="max-height:160px;overflow-y:auto;background:#2a2a3e;border:1px solid #3e3e5e;border-radius:.375rem;padding:.5rem .75rem;">
+                        <div class="row g-1">
                         <?php foreach ($platforms_list as $p): ?>
-                        <option value="<?= htmlspecialchars($p) ?>" <?= ($v['platform_played'] ?? '') === $p ? 'selected' : '' ?>><?= htmlspecialchars($p) ?></option>
+                        <div class="col-6">
+                            <div class="form-check mb-0">
+                                <input class="form-check-input" type="checkbox"
+                                       name="platform_played[]" value="<?= htmlspecialchars($p) ?>"
+                                       id="pp_edit_<?= md5($p) ?>"
+                                       <?= in_array($p, $checked_platforms) ? 'checked' : '' ?>>
+                                <label class="form-check-label small" for="pp_edit_<?= md5($p) ?>">
+                                    <?= htmlspecialchars($p) ?>
+                                </label>
+                            </div>
+                        </div>
                         <?php endforeach; ?>
-                    </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label">Format</label>
                     <select name="format" class="form-select">
                         <option value="">— Select —</option>
