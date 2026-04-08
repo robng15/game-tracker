@@ -9,4 +9,4 @@ define('IGDB_CLIENT_SECRET', 'YOUR_CLIENT_SECRET_HERE');
 
 // Paths
 define('DB_PATH', __DIR__ . '/db/games.db');
-define('BASE_URL', '/apps/game-tracker'); // Adjust to match your web root path
+define('BASE_URL', ''); // Empty string when app is at the domain root
