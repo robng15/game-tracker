@@ -11,15 +11,22 @@ $status_filter = $_GET['status'] ?? '';
 $sort          = $_GET['sort'] ?? 'added_at';
 $order         = strtoupper($_GET['order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
 
-$allowed_sorts = ['title', 'release_year', 'my_rating', 'playtime_hours', 'completion_percent', 'added_at', 'status'];
+$platform_filter = $_GET['platform'] ?? '';
+
+$allowed_sorts = ['title', 'release_year', 'my_rating', 'playtime_hours', 'completion_percent', 'added_at', 'status', 'platform_played'];
 if (!in_array($sort, $allowed_sorts)) $sort = 'added_at';
 
-$where  = '';
-$params = [];
+$conditions = [];
+$params     = [];
 if ($status_filter !== '') {
-    $where  = 'WHERE status = ?';
-    $params = [$status_filter];
+    $conditions[] = 'status = ?';
+    $params[]     = $status_filter;
 }
+if ($platform_filter !== '') {
+    $conditions[] = 'platform_played = ?';
+    $params[]     = $platform_filter;
+}
+$where = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
 
 $games = $db->prepare("SELECT * FROM games {$where} ORDER BY {$sort} {$order}");
 $games->execute($params);
@@ -37,7 +44,15 @@ $stats = $db->query("
     FROM games
 ")->fetch();
 
-$statuses = ['backlog' => 'Backlog', 'playing' => 'Playing', 'completed' => 'Completed', 'dropped' => 'Dropped', 'wishlist' => 'Wishlist'];
+$statuses = ['backlog' => 'Backlog', 'playing' => 'Playing', 'completed' => 'Completed', 'dropped' => 'Dropped', 'wishlist' => 'Wishlist', 'never-finished' => 'Never Finished'];
+
+$platforms_list = [
+    'Sinclair Spectrum', 'BBC Master', 'Acorn Archimedes', 'Commodore Amiga',
+    'Amstrad CPC 464', 'Atari ST', 'Sega Game Gear', 'Sega Master System',
+    'Sega Mega Drive', 'Sega Saturn', 'NES', 'SNES', 'Game Boy', 'Nintendo 64',
+    'Nintendo DS', 'Game Boy Advance', 'Wii', 'Sony Playstation', 'Xbox',
+    'Xbox 360', 'PC', 'Steam Deck',
+];
 
 function sort_url(string $col, string $current_sort, string $current_order): string {
     $new_order = ($col === $current_sort && $current_order === 'ASC') ? 'DESC' : 'ASC';
@@ -82,17 +97,28 @@ require_once __DIR__ . '/includes/header.php';
             <input type="hidden" name="sort" value="<?= htmlspecialchars($sort) ?>">
             <input type="hidden" name="order" value="<?= htmlspecialchars($order) ?>">
             <div class="col-auto">
-                <label class="col-form-label text-muted small">Filter by status:</label>
+                <label class="col-form-label text-muted small">Status:</label>
             </div>
             <div class="col-auto">
                 <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                    <option value="">All Games</option>
+                    <option value="">All</option>
                     <?php foreach ($statuses as $val => $label): ?>
                     <option value="<?= $val ?>" <?= $status_filter === $val ? 'selected' : '' ?>><?= $label ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
-            <?php if ($status_filter): ?>
+            <div class="col-auto">
+                <label class="col-form-label text-muted small">Platform:</label>
+            </div>
+            <div class="col-auto">
+                <select name="platform" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All</option>
+                    <?php foreach ($platforms_list as $p): ?>
+                    <option value="<?= htmlspecialchars($p) ?>" <?= $platform_filter === $p ? 'selected' : '' ?>><?= htmlspecialchars($p) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <?php if ($status_filter || $platform_filter): ?>
             <div class="col-auto">
                 <a href="index.php" class="btn btn-sm btn-outline-secondary">Clear</a>
             </div>
@@ -122,6 +148,8 @@ require_once __DIR__ . '/includes/header.php';
                     <th><a href="<?= sort_url('title', $sort, $order) ?>" class="text-decoration-none text-reset">Title<?= sort_icon('title', $sort, $order) ?></a></th>
                     <th><a href="<?= sort_url('release_year', $sort, $order) ?>" class="text-decoration-none text-reset">Year<?= sort_icon('release_year', $sort, $order) ?></a></th>
                     <th><a href="<?= sort_url('status', $sort, $order) ?>" class="text-decoration-none text-reset">Status<?= sort_icon('status', $sort, $order) ?></a></th>
+                    <th><a href="<?= sort_url('platform_played', $sort, $order) ?>" class="text-decoration-none text-reset">Platform Played<?= sort_icon('platform_played', $sort, $order) ?></a></th>
+                    <th>Format</th>
                     <th><a href="<?= sort_url('my_rating', $sort, $order) ?>" class="text-decoration-none text-reset">Rating<?= sort_icon('my_rating', $sort, $order) ?></a></th>
                     <th><a href="<?= sort_url('playtime_hours', $sort, $order) ?>" class="text-decoration-none text-reset">Hours<?= sort_icon('playtime_hours', $sort, $order) ?></a></th>
                     <th><a href="<?= sort_url('completion_percent', $sort, $order) ?>" class="text-decoration-none text-reset">Complete<?= sort_icon('completion_percent', $sort, $order) ?></a></th>
@@ -147,9 +175,11 @@ require_once __DIR__ . '/includes/header.php';
                 <td class="text-muted"><?= htmlspecialchars((string)($g['release_year'] ?? '—')) ?></td>
                 <td>
                     <span class="badge badge-status-<?= htmlspecialchars($g['status']) ?>">
-                        <?= htmlspecialchars(ucfirst($g['status'])) ?>
+                        <?= htmlspecialchars($statuses[$g['status']] ?? ucfirst($g['status'])) ?>
                     </span>
                 </td>
+                <td class="text-muted small"><?= htmlspecialchars($g['platform_played'] ?? '—') ?></td>
+                <td class="text-muted small"><?= htmlspecialchars($g['format'] ?? '—') ?></td>
                 <td>
                     <?php if ($g['my_rating'] !== null): ?>
                     <span class="fw-semibold"><?= htmlspecialchars((string)$g['my_rating']) ?></span>

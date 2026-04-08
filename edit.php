@@ -29,6 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $playtime_hours     = $_POST['playtime_hours'] !== '' ? (float)$_POST['playtime_hours'] : null;
     $completion_percent = max(0, min(100, (int)($_POST['completion_percent'] ?? 0)));
     $status             = $_POST['status'] ?? 'backlog';
+    $platform_played    = trim($_POST['platform_played'] ?? '') ?: null;
+    $format             = trim($_POST['format'] ?? '') ?: null;
     $notes              = trim($_POST['notes'] ?? '') ?: null;
 
     if ($title === '') {
@@ -39,12 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 title = ?, cover_url = ?, genres = ?, platforms = ?,
                 release_year = ?, developer = ?, summary = ?,
                 my_rating = ?, playtime_hours = ?, completion_percent = ?,
-                status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+                status = ?, platform_played = ?, format = ?,
+                notes = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         ")->execute([
             $title, $cover_url, $genres, $platforms, $release_year,
             $developer, $summary, $my_rating, $playtime_hours,
-            $completion_percent, $status, $notes, $id
+            $completion_percent, $status, $platform_played, $format, $notes, $id
         ]);
 
         header('Location: ' . BASE_URL . '/index.php');
@@ -55,7 +58,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Use POST values on validation failure, otherwise DB values
 $v = ($error && $_SERVER['REQUEST_METHOD'] === 'POST') ? $_POST : $game;
 
-$statuses = ['backlog' => 'Backlog', 'playing' => 'Playing', 'completed' => 'Completed', 'dropped' => 'Dropped', 'wishlist' => 'Wishlist'];
+$statuses = ['backlog' => 'Backlog', 'playing' => 'Playing', 'completed' => 'Completed', 'dropped' => 'Dropped', 'wishlist' => 'Wishlist', 'never-finished' => 'Never Finished'];
+
+$platforms_list = [
+    'Sinclair Spectrum', 'BBC Master', 'Acorn Archimedes', 'Commodore Amiga',
+    'Amstrad CPC 464', 'Atari ST', 'Sega Game Gear', 'Sega Master System',
+    'Sega Mega Drive', 'Sega Saturn', 'NES', 'SNES', 'Game Boy', 'Nintendo 64',
+    'Nintendo DS', 'Game Boy Advance', 'Wii', 'Sony Playstation', 'Xbox',
+    'Xbox 360', 'PC', 'Steam Deck',
+];
+
+$formats_list = ['Owned', 'Borrowed', 'Co-played'];
 
 require_once __DIR__ . '/includes/header.php';
 ?>
@@ -186,6 +199,27 @@ require_once __DIR__ . '/includes/header.php';
                 <input type="range" name="completion_percent" class="form-range" min="0" max="100" step="5"
                        value="<?= (int)($v['completion_percent'] ?? 0) ?>"
                        oninput="document.getElementById('completion-val').textContent = this.value + '%'">
+            </div>
+
+            <div class="row g-3 mt-0">
+                <div class="col-md-6">
+                    <label class="form-label">Platform Played</label>
+                    <select name="platform_played" class="form-select">
+                        <option value="">— Select —</option>
+                        <?php foreach ($platforms_list as $p): ?>
+                        <option value="<?= htmlspecialchars($p) ?>" <?= ($v['platform_played'] ?? '') === $p ? 'selected' : '' ?>><?= htmlspecialchars($p) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Format</label>
+                    <select name="format" class="form-select">
+                        <option value="">— Select —</option>
+                        <?php foreach ($formats_list as $f): ?>
+                        <option value="<?= htmlspecialchars($f) ?>" <?= ($v['format'] ?? '') === $f ? 'selected' : '' ?>><?= htmlspecialchars($f) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
 
             <div class="mt-3">

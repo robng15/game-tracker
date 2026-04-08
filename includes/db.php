@@ -44,6 +44,10 @@ function init_schema(PDO $pdo): void {
             value TEXT
         );
     ");
+
+    // Migrations — safe to run on existing databases
+    try { $pdo->exec("ALTER TABLE games ADD COLUMN platform_played TEXT"); } catch (Exception $e) {}
+    try { $pdo->exec("ALTER TABLE games ADD COLUMN format TEXT"); } catch (Exception $e) {}
 }
 
 function get_setting(string $key): ?string {

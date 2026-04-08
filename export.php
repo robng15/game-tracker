@@ -18,7 +18,8 @@ fwrite($out, "\xEF\xBB\xBF");
 $columns = [
     'id', 'igdb_id', 'title', 'cover_url', 'genres', 'platforms',
     'release_year', 'developer', 'summary', 'my_rating', 'playtime_hours',
-    'completion_percent', 'status', 'notes', 'added_at', 'updated_at',
+    'completion_percent', 'status', 'platform_played', 'format', 'notes',
+    'added_at', 'updated_at',
 ];
 
 fputcsv($out, $columns);

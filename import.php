@@ -13,7 +13,7 @@ $expected_columns = [
     'completion_percent', 'status', 'notes',
 ];
 
-$valid_statuses = ['backlog', 'playing', 'completed', 'dropped', 'wishlist'];
+$valid_statuses = ['backlog', 'playing', 'completed', 'dropped', 'wishlist', 'never-finished'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
     $file = $_FILES['csv_file'];
@@ -83,6 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
                     $playtime_hours     = ($data['playtime_hours'] ?? '') !== '' ? (float)$data['playtime_hours'] : null;
                     $completion_percent = max(0, min(100, (int)($data['completion_percent'] ?? 0)));
                     $status             = in_array($data['status'] ?? '', $valid_statuses) ? $data['status'] : 'backlog';
+                    $platform_played    = trim($data['platform_played'] ?? '') ?: null;
+                    $format             = trim($data['format'] ?? '') ?: null;
                     $notes              = trim($data['notes'] ?? '') ?: null;
 
                     if ($existing && $mode === 'skip') {
@@ -96,24 +98,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
                                 igdb_id = ?, title = ?, cover_url = ?, genres = ?, platforms = ?,
                                 release_year = ?, developer = ?, summary = ?,
                                 my_rating = ?, playtime_hours = ?, completion_percent = ?,
-                                status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+                                status = ?, platform_played = ?, format = ?,
+                                notes = ?, updated_at = CURRENT_TIMESTAMP
                             WHERE id = ?
                         ")->execute([
                             $igdb_id, $title, $cover_url, $genres, $platforms, $release_year,
                             $developer, $summary, $my_rating, $playtime_hours,
-                            $completion_percent, $status, $notes, $existing['id']
+                            $completion_percent, $status, $platform_played, $format, $notes, $existing['id']
                         ]);
                         $imported++;
                     } else {
                         $db->prepare("
                             INSERT INTO games
                                 (igdb_id, title, cover_url, genres, platforms, release_year, developer, summary,
-                                 my_rating, playtime_hours, completion_percent, status, notes)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                 my_rating, playtime_hours, completion_percent, status, platform_played, format, notes)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ")->execute([
                             $igdb_id, $title, $cover_url, $genres, $platforms, $release_year,
                             $developer, $summary, $my_rating, $playtime_hours,
-                            $completion_percent, $status, $notes
+                            $completion_percent, $status, $platform_played, $format, $notes
                         ]);
                         $imported++;
                     }
@@ -206,7 +209,9 @@ require_once __DIR__ . '/includes/header.php';
                     ['my_rating',          false, '1–10, decimals allowed'],
                     ['playtime_hours',     false, 'Hours played'],
                     ['completion_percent', false, '0–100'],
-                    ['status',             false, 'backlog / playing / completed / dropped / wishlist'],
+                    ['status',             false, 'backlog / playing / completed / dropped / wishlist / never-finished'],
+                    ['platform_played',    false, 'e.g. PC, SNES, Sega Mega Drive'],
+                    ['format',             false, 'Owned / Borrowed / Co-played'],
                     ['notes',              false, 'Personal notes'],
                 ] as [$col, $req, $note]): ?>
                 <tr>

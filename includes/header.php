@@ -25,11 +25,12 @@
         .game-cover-placeholder { width: 60px; height: 80px; background: #2e2e3e; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #555; font-size: 1.5rem; }
         .search-cover { width: 80px; height: 107px; object-fit: cover; border-radius: 4px; }
         .search-cover-placeholder { width: 80px; height: 107px; background: #2e2e3e; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #555; font-size: 2rem; }
-        .badge-status-backlog   { background-color: #555; }
-        .badge-status-playing   { background-color: #198754; }
-        .badge-status-completed { background-color: #6c63ff; }
-        .badge-status-dropped   { background-color: #dc3545; }
-        .badge-status-wishlist  { background-color: #fd7e14; }
+        .badge-status-backlog         { background-color: #555; }
+        .badge-status-playing         { background-color: #198754; }
+        .badge-status-completed       { background-color: #6c63ff; }
+        .badge-status-dropped         { background-color: #dc3545; }
+        .badge-status-wishlist        { background-color: #fd7e14; }
+        .badge-status-never-finished  { background-color: #6c757d; }
         .completion-bar { height: 6px; border-radius: 3px; background: #2e2e3e; }
         .completion-bar .fill { height: 100%; border-radius: 3px; background: #6c63ff; }
         a { color: #a89fff; }
