@@ -144,7 +144,7 @@ require_once __DIR__ . '/includes/header.php';
         <table class="table table-hover align-middle mb-0">
             <thead>
                 <tr>
-                    <th style="width:70px"></th>
+                    <th style="width:110px"></th>
                     <th><a href="<?= sort_url('title', $sort, $order) ?>" class="text-decoration-none text-reset">Title<?= sort_icon('title', $sort, $order) ?></a></th>
                     <th><a href="<?= sort_url('release_year', $sort, $order) ?>" class="text-decoration-none text-reset">Year<?= sort_icon('release_year', $sort, $order) ?></a></th>
                     <th><a href="<?= sort_url('status', $sort, $order) ?>" class="text-decoration-none text-reset">Status<?= sort_icon('status', $sort, $order) ?></a></th>

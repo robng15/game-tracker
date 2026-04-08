@@ -21,8 +21,8 @@
         .btn-primary:hover { background-color: #574fd6; border-color: #574fd6; }
         .btn-outline-secondary { color: #aaa; border-color: #555; }
         .btn-outline-secondary:hover { background-color: #2a2a3e; color: #fff; }
-        .game-cover { width: 60px; height: 80px; object-fit: cover; border-radius: 4px; }
-        .game-cover-placeholder { width: 60px; height: 80px; background: #2e2e3e; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #555; font-size: 1.5rem; }
+        .game-cover { width: 100px; height: 133px; object-fit: cover; border-radius: 4px; }
+        .game-cover-placeholder { width: 100px; height: 133px; background: #2e2e3e; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #555; font-size: 1.5rem; }
         .search-cover { width: 80px; height: 107px; object-fit: cover; border-radius: 4px; }
         .search-cover-placeholder { width: 80px; height: 107px; background: #2e2e3e; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #555; font-size: 2rem; }
         .badge-status-backlog         { background-color: #555; }
