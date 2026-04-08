@@ -51,7 +51,7 @@ $platforms_list = [
     'Amstrad CPC 464', 'Atari ST', 'Sega Game Gear', 'Sega Master System',
     'Sega Mega Drive', 'Sega Saturn', 'NES', 'SNES', 'Game Boy', 'Nintendo 64',
     'Nintendo DS', 'Game Boy Advance', 'Wii', 'Sony Playstation', 'Xbox',
-    'Xbox 360', 'PC', 'Steam Deck',
+    'Xbox 360', 'PC', 'Steam Deck', 'Apple',
 ];
 
 function sort_url(string $col, string $current_sort, string $current_order): string {
